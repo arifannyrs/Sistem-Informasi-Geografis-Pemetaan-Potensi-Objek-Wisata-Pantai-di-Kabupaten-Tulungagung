@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Leaflet Panel Layers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+<link rel="stylesheet" href="../src/leaflet-panel-layers.css" />
+<link rel="stylesheet" href="icons.css" />
+<link rel="stylesheet" href="style.css" />
+<style>
+
+.leaflet-panel-layers {
+    background: rgba(255,255,255,0.8);
+}
+#map {
+    position: fixed;
+    top: 50px;
+    width:98%;
+    height: 90%;
+}
+</style>
+</head>
+
+<body>
+<h3><a href="../"><big>◄</big> Leaflet Panel Layers</a></h3>
+<h4> Multiple panels in compact mode</h4>
+<br />
+<div id="map"></div>
+
+<div id="copy"><a href="http://labs.easyblog.it/">Labs</a> &bull; <a rel="author" href="http://labs.easyblog.it/stefano-cudini/">Stefano Cudini</a></div>
+
+<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+<script src="../src/leaflet-panel-layers.js"></script>
+<script>
+
+var conf = {
+    base: {
+        title: 'Others Base Layers',
+        layers: [
+            {
+                group: "Road Layers",
+                collapsed: true,
+                layers: [
+                	{
+                		name: "Esri Gray",
+                		active: true,
+                		layer: L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+                			attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+                			maxZoom: 16
+                		})
+                	},
+                    {
+                        name: "Landscape",
+                        layer: {
+                            type: "tileLayer",
+                            args: [
+                                "http://{s}.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png"
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                group: "Land Cover",
+                layers: [
+                    {
+                        name: "Tree Cover 2000",
+                        layer: {
+                            type: "tileLayer",
+                            args: [
+                                "http://earthengine.google.org/static/hansen_2014/gfw_loss_tree_year_30_2014/{z}/{x}/{y}.png", {
+                                    attribution: "<a href='http://earthenginepartners.appspot.com/science-2013-global-forest'>Tree Cover (2000-2014, Hansen/UMD/Google/USGS/NASA)</a>",
+                                    maxZoom: 12
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        name: "Land Cover 2009",
+                        layer: {
+                            type: "tileLayer",
+                            args: [
+                                "https://s3.amazonaws.com/wri-tiles/global-landcover/{z}/{x}/{y}.png", {
+                                    attribution: "<a href='http://earthenginepartners.appspot.com/science-2013-global-forest'>Maps land cover distribution globally</a>",
+                                    maxZoom: 12
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    tree: {
+        title: "Tree Cover Trend",
+        layers: [
+            {
+                active: false,
+                name: "Gain",
+                layer: {
+                    type: "tileLayer",
+                    args: [
+                        "http://earthengine.google.org/static/hansen_2013/gain_alpha/{z}/{x}/{y}.png", {
+                        	maxZoom: 12,
+        					attribution:
+        					'<a href="http://earthenginepartners.appspot.com/science-2013-global-forest"> '+
+        					'Tree Cover Gain (12 years, 30m, global)</a>'
+                        }
+                    ]
+                }
+            },
+            {
+                name: "Loss",
+                layer: {
+                    type: "tileLayer",
+                    args: [
+                        "http://earthengine.google.org/static/hansen_2013/loss_alpha/{z}/{x}/{y}.png", {
+                        	maxZoom: 12,
+        					attribution:
+        					'<a href="http://earthenginepartners.appspot.com/science-2013-global-forest"> '+
+        					'Tree Cover Loss (12 years, 30m, global)</a>'
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+};
+
+
+var map = L.map('map', {
+        center: L.latLng([42.4918,12.4992]),
+        zoom: 3
+    });
+
+var base1 = L.control.panelLayers(conf.base.layers, null,  {
+    title: conf.base.title,
+	position: 'topright',
+	compact: true
+}).addTo(map);
+
+var over1 = L.control.panelLayers(null, conf.tree.layers, {
+    title: conf.tree.title,
+    position: 'topright',
+    compact: true
+}).addTo(map);
+
+
+var scale = L.control.scale().addTo(map);
+
+map.on('zoomend', function() {
+    var y = map.getSize().y,
+        x = map.getSize().x;
+    // calculate the distance the one side of the map to the other using the haversine formula
+    var maxMeters = map.containerPointToLatLng([0, y]).distanceTo( map.containerPointToLatLng([x,y]));
+    // calculate how many meters each pixel represents
+    var MeterPerPixel = maxMeters/x ;
+    // say this is your scale
+    // This is the scale denominator
+    console.log('scale denominator: ',MeterPerPixel*scale.options.maxWidth);
+
+    console.log('zoom', map.getZoom() )
+});
+
+</script>
+
+<script type="text/javascript" src="/labs-common.js"></script>
+
+</body>
+</html>

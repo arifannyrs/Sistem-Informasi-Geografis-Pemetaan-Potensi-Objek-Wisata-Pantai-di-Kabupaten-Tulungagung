@@ -1,0 +1,72 @@
+{
+    "baselayers": [
+        {
+            "name": "Open Cycle Map",
+            "layer": {
+                "type": "tileLayer",
+                "args": [
+                    "http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"
+                ]
+            }
+        },
+        {
+            "active": true,
+            "name": "Landscape",
+            "layer": {
+                "type": "tileLayer",
+                "args": [
+                    "http://{s}.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png"
+                ]
+            }
+        },
+        {
+            "name": "Transports",
+            "layer": {
+                "type": "tileLayer",
+                "args": [
+                    "http://{s}.tile2.opencyclemap.org/transport/{z}/{x}/{y}.png"
+                ]
+            }
+        }
+    ],
+    "overlayers": [
+        {
+            "name": "Water",
+            "layer": {
+                "type": "geoJson",
+                "args": [
+                    {
+                      "type": "Feature",
+                      "geometry": {
+                        "type": "MultiPoint",
+                        "coordinates": [
+                            [12.5107845,42.5214998],
+                            [12.4392016,42.4776585],
+                            [12.4707083,42.5363499]
+                        ]
+                      }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Bars",
+            "layer": {
+                "type": "geoJson",
+                "args": [
+                    {
+                      "type": "Feature",
+                      "geometry": {
+                        "type": "MultiPoint",
+                        "coordinates": [
+                            [12.5107845,42.5204998],
+                            [12.4892016,42.4786585],
+                            [12.4907083,42.5373499]
+                        ]
+                      }
+                    }
+                ]
+            }
+        }
+    ]
+}
